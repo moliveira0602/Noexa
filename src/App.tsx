@@ -2,8 +2,23 @@ import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useCustomCursor } from './hooks/useCustomCursor'
+import AboutFeatures from './components/ui/about-features'
 import { useScrollPosition } from './hooks/useScrollPosition'
 import { useIntersectionObserver as useInView } from './hooks/useIntersectionObserver'
+import { 
+  Terminal as TerminalIcon, 
+  Play, 
+  Copy, 
+  Check, 
+  Folder, 
+  FileCode, 
+  Search as SearchIcon, 
+  GitBranch, 
+  Code2,
+  X,
+  FileText,
+  Menu
+} from 'lucide-react'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -26,12 +41,222 @@ function formatStat(n: number, target: number): string {
   return String(n)
 }
 
+/* ============== TECH STACK CUSTOM IDE DATA ============== */
+const techCategories: Record<string, string> = {
+  '.NET 6+': 'Backend',
+  'C#': 'Backend',
+  'React.js': 'Frontend',
+  'Angular': 'Frontend',
+  'TypeScript': 'Frontend',
+  'Node.js': 'Backend',
+  'MongoDB': 'Database',
+  'PostgreSQL': 'Database',
+  'Azure': 'DevOps & Cloud',
+  'Docker': 'DevOps & Cloud',
+  'Kubernetes': 'DevOps & Cloud',
+  'Python': 'Backend',
+  'Go': 'Backend',
+  'Java': 'Backend',
+  'Rust': 'Backend',
+  'SQL': 'Database',
+  'PHP': 'Backend'
+};
+
+const mockTerminalLogs: Record<string, string[]> = {
+  '.NET 6+': [
+    '$ dotnet run --project NoeXa.Solutions',
+    'Build started...',
+    'Compiling NoeXa.Solutions.DigitalTransformation...',
+    'AssembleDedicatedTeam() -> Assembling senior engineers, QA & PM...',
+    'Architecting modern microservices on Azure AKS...',
+    'Build successful. Zero warnings, zero errors.',
+    'Executing NoeXa core solutions. Quality guarantee: 100%',
+    'Execution complete.'
+  ],
+  'C#': [
+    '$ dotnet run --project NoeXa.Core',
+    'Build started...',
+    'Successfully loaded patterns: DDD, CQRS, EventSourcing.',
+    'Executing SolutionBuilder.BuildAsync() task...',
+    'Execution complete. Status: SUCCESS in 124ms.'
+  ],
+  'React.js': [
+    '$ npm run build',
+    'vite v8.0.8 building client environment for production...',
+    '✓ 1731 modules transformed.',
+    'dist/assets/index-b48f93e.js  142.18 kB │ gzip: 42.12 kB',
+    'dist/assets/index-c18f21a.css   25.40 kB │ gzip:  6.12 kB',
+    '✓ built in 1.48s',
+    'Production build complete!'
+  ],
+  'Angular': [
+    '$ ng build --configuration production',
+    'Building NoeXa Client Bundle...',
+    'Initial chunk files | Names         | Size',
+    'main.js             | Main          | 185.34 kB',
+    'polyfills.js        | Polyfills     |  33.12 kB',
+    'styles.css          | Styles        |  24.50 kB',
+    'Build successful. Compiled on AOT mode.',
+    'Bundle size optimized. Execution complete.'
+  ],
+  'TypeScript': [
+    '$ tsc --noEmit',
+    'Performing static type-checking of all .ts and .tsx files...',
+    'Found 0 type errors. Everything is fully sound!',
+    'Compilation complete.'
+  ],
+  'Node.js': [
+    '$ node noexa.api.js',
+    'Starting NoeXa API Gateway...',
+    'Connecting to Database Cluster...',
+    'Server running on port 3000 (HTTPS)',
+    'API is fully healthy and ready for queries.'
+  ],
+  'MongoDB': [
+    '$ mongo "mongodb+srv://cluster0.noexa.mongodb.net/prod"',
+    'Connecting to cluster0.noexa.mongodb.net...',
+    'MongoDB Shell v7.0.5',
+    'db.projects.aggregate() -> processing pipeline aggregates...',
+    'Completed aggregation. Output: { totalDocs: 154, avgTeamSize: 6.8 }'
+  ],
+  'PostgreSQL': [
+    '$ psql -h db.noexa.pt -U dev_admin -d noexa_prod',
+    'psql (16.2, server 15.6)',
+    'Type "help" for help.',
+    'Running index query optimizer...',
+    'CREATE INDEX idx_projects_client SUCCESSFUL.',
+    'Query completed in 1.5ms.'
+  ],
+  'Azure': [
+    '$ az deployment group create --resource-group noexa-prod --template-file azure-deploy.bicep',
+    'Initializing Bicep transpile compiler...',
+    'Creating resource deployment task: [noexa-api-prod] in [West Europe]...',
+    'Deployment successful. Output endpoint: https://api.noexa.pt'
+  ],
+  'Docker': [
+    '$ docker build -t noexa/api:latest .',
+    'Sending build context to Docker daemon  42.5kB',
+    'Step 1/12 : FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base',
+    ' ---> f0e2d1a3f5c',
+    'Step 2/12 : WORKDIR /app',
+    ' ---> Using cache',
+    'Step 12/12 : RUN dotnet publish -c Release',
+    ' ---> Running in b12a4f6d',
+    'Successfully built b12a4f6d',
+    'Successfully tagged noexa/api:latest'
+  ],
+  'Kubernetes': [
+    '$ kubectl apply -f k8s-deployment.yaml',
+    'deployment.apps/noexa-api created',
+    'service/noexa-api-service created',
+    'kubectl get pods',
+    'NAME                         READY   STATUS    RESTARTS   AGE',
+    'noexa-api-8fcd12a4-abc12     1/1     Running   0          5s',
+    'noexa-api-8fcd12a4-def34     1/1     Running   0          5s',
+    'noexa-api-8fcd12a4-ghi56     1/1     Running   0          5s'
+  ],
+  'Python': [
+    '$ uvicorn noexa_api:app --host 0.0.0.0 --port 8000',
+    'INFO:     Started server process [4512]',
+    'INFO:     Waiting for application startup.',
+    'INFO:     Application startup complete.',
+    'INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)'
+  ],
+  'Go': [
+    '$ go run noexa.go',
+    'Starting Go net/http microservice server...',
+    'Database connection pools initialized.',
+    'Listening on :8080'
+  ],
+  'Java': [
+    '$ mvn spring-boot:run',
+    '  .   ____          _            __ _ _',
+    ' /\\\\ / ___\\\'_ __ _ _(_)_ __  __ _ \\ \\ \\ \\',
+    '( ( )\\___ | \'_ | \'_| | \'_ \\/ _` | \\ \\ \\ \\',
+    ' \\\\/  ___)| |_)| | | | | | | (_| |  ) ) ) )',
+    '  \'  |____| .__|_| |_|_|_| |_\\__, | / / / /',
+    ' =========|_|==============|___/=/=/_/_/_/',
+    ' :: Spring Boot ::                (v3.2.3)',
+    'INFO: Started ProjectController in 2.85 seconds.'
+  ],
+  'Rust': [
+    '$ cargo run --release',
+    '   Compiling noexa v0.1.0 (/app)',
+    '    Finished release [optimized] target(s) in 8.32s',
+    '     Running `target/release/noexa`',
+    '[INFO] actix_web::server: Http-Server started on 127.0.0.1:8080'
+  ],
+  'SQL': [
+    '$ sqlite3 noexa.db < queries.sql',
+    'Executing query aggregate client budgets...',
+    'Done. 20 rows matched in 0.8ms.'
+  ],
+  'PHP': [
+    '$ php artisan serve',
+    'Starting Laravel development server: http://127.0.0.1:8000',
+    '[Fri May  8 11:54:12 2026] 127.0.0.1:54124 Accepted'
+  ]
+};
+
+const fileExplorer = [
+  {
+    name: 'backend',
+    type: 'folder',
+    children: [
+      { name: 'noexa.solution.cs', tech: '.NET 6+' },
+      { name: 'NoeXa.Core.cs', tech: 'C#' },
+      { name: 'noexa.api.js', tech: 'Node.js' },
+      { name: 'noexa_api.py', tech: 'Python' },
+      { name: 'noexa.go', tech: 'Go' },
+      { name: 'NoeXaService.java', tech: 'Java' },
+      { name: 'noexa.rs', tech: 'Rust' },
+      { name: 'NoeXaController.php', tech: 'PHP' },
+    ]
+  },
+  {
+    name: 'frontend',
+    type: 'folder',
+    children: [
+      { name: 'NoeXa.Web.tsx', tech: 'React.js' },
+      { name: 'noexa.service.ts', tech: 'Angular' },
+      { name: 'noexa.types.ts', tech: 'TypeScript' },
+    ]
+  },
+  {
+    name: 'database',
+    type: 'folder',
+    children: [
+      { name: 'noexa.mongo.js', tech: 'MongoDB' },
+      { name: 'noexa.sql', tech: 'PostgreSQL' },
+      { name: 'queries.sql', tech: 'SQL' },
+    ]
+  },
+  {
+    name: 'devops',
+    type: 'folder',
+    children: [
+      { name: 'azure-deploy.bicep', tech: 'Azure' },
+      { name: 'Dockerfile', tech: 'Docker' },
+      { name: 'k8s-deployment.yaml', tech: 'Kubernetes' },
+    ]
+  }
+];
+
 /* ============== MAIN APP ============== */
 function App() {
   const { cursorRef, ringRef, isMobile } = useCustomCursor()
   const scrolled = useScrollPosition()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [selectedTech, setSelectedTech] = useState('.NET 6+')
   const [displayedCode, setDisplayedCode] = useState<string[]>([])
+  
+  // Interactive IDE state variables
+  const [activeCategory, setActiveCategory] = useState('All')
+  const [isCopied, setIsCopied] = useState(false)
+  const [isConsoleOpen, setIsConsoleOpen] = useState(false)
+  const [consoleLogs, setConsoleLogs] = useState<string[]>([])
+  const [isCompiling, setIsCompiling] = useState(false)
+
   const [expandedJob, setExpandedJob] = useState<number | null>(null)
   const [formData, setFormData] = useState<FormData>({
     firstName: '', lastName: '', email: '', subject: '', message: ''
@@ -140,7 +365,7 @@ function App() {
     '.NET 6+': {
       filename: 'noexa.solution.cs',
       code: [
-        '// NoeXa \u2013 Engineering Excellence',
+        // NoeXa – Engineering Excellence',
         'namespace NoeXa.Solutions {',
         '  public class DigitalTransformation {',
         '    private readonly ITeamService _team;',
@@ -586,6 +811,40 @@ function App() {
     }
   }, [selectedTech])
 
+  // Interactive IDE helper handlers
+  const handleCopyCode = async () => {
+    try {
+      const codeString = currentCode.code.join('\n')
+      await navigator.clipboard.writeText(codeString)
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy text: ', err)
+    }
+  }
+
+  const handleRunCode = () => {
+    if (isCompiling) return
+    setIsConsoleOpen(true)
+    setIsCompiling(true)
+    setConsoleLogs([])
+    
+    const logs = mockTerminalLogs[selectedTech] || ['Running task...']
+    let lineIndex = 0
+    
+    const printNextLine = () => {
+      if (lineIndex >= logs.length) {
+        setIsCompiling(false)
+        return
+      }
+      setConsoleLogs(prev => [...prev, logs[lineIndex]])
+      lineIndex++
+      setTimeout(printNextLine, 350 + Math.random() * 250) // Compilation delay interval
+    }
+    
+    printNextLine()
+  }
+
   // GSAP ScrollTrigger with proper cleanup
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -614,7 +873,7 @@ function App() {
 
   // Stats with animated counters
   const stats = [
-    { id: 'stat1', target: 10000000, suffix: '\u20AC', label: 'Revenue Generated' },
+    { id: 'stat1', target: 10000000, suffix: '€', label: 'Revenue Generated' },
     { id: 'stat2', target: 200, suffix: '+', label: 'Successful Projects' },
     { id: 'stat3', target: 20, suffix: '+', label: 'Years of Expertise' },
     { id: 'stat4', target: 15, suffix: '%', label: 'Annual Growth Rate' },
@@ -676,19 +935,45 @@ function App() {
       <div className="grid-overlay"></div>
 
       {/* NAV */}
-      <nav className={scrolled ? 'scrolled' : ''}>
-        <a href="#" className="nav-logo" aria-label="NoeXa Home">
-          <img src="https://noexa.pt/wp-content/uploads/2024/12/logo-noexa-it-solutions-1.png" alt="NoeXa IT Solutions" />
-        </a>
-        <ul className="nav-links" role="navigation">
-          <li><a href="#services">Services</a></li>
-          <li><a href="#tech">Stack</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#careers">Careers</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
-        <a href="#careers" className="nav-cta">Join Us \u2192</a>
+      <nav className={`${scrolled ? 'scrolled' : ''} ${isMobileMenuOpen ? 'menu-open' : ''}`}>
+        <div className="nav-inner">
+          <a href="#" className="nav-logo" aria-label="NoeXa Home">
+            <img src="https://noexa.pt/wp-content/uploads/2024/12/logo-noexa-it-solutions-1.png" alt="NoeXa IT Solutions" />
+          </a>
+          <ul className="nav-links" role="navigation">
+            <li><a href="#services">What we do?</a></li>
+            <li><a href="#about">Get to know us</a></li>
+            <li><a href="#careers">There’s a place for you</a></li>
+            <li><a href="#contact">Get in contact</a></li>
+          </ul>
+          
+          <div className="nav-right">
+            <a href="#careers" className="nav-cta">Join Us →</a>
+            <button 
+              className="mobile-menu-btn" 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle navigation menu"
+              aria-expanded={isMobileMenuOpen}
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        </div>
       </nav>
+
+      {/* MOBILE MENU OVERLAY */}
+      <div className={`mobile-menu-overlay ${isMobileMenuOpen ? 'open' : ''}`}>
+        <div className="mobile-menu-grid"></div>
+        <div className="mobile-menu-inner">
+          <ul className="mobile-menu-links">
+            <li><a href="#services" onClick={() => setIsMobileMenuOpen(false)}>What we do?</a></li>
+            <li><a href="#about" onClick={() => setIsMobileMenuOpen(false)}>Get to know us</a></li>
+            <li><a href="#careers" onClick={() => setIsMobileMenuOpen(false)}>There’s a place for you</a></li>
+            <li><a href="#contact" onClick={() => setIsMobileMenuOpen(false)}>Get in contact</a></li>
+          </ul>
+          <a href="#careers" className="mobile-menu-cta" onClick={() => setIsMobileMenuOpen(false)}>Join Us →</a>
+        </div>
+      </div>
 
       {/* HERO */}
       <section id="hero" aria-label="Hero section">
@@ -696,16 +981,19 @@ function App() {
           <source src="https://noexa.pt/wp-content/uploads/2024/12/home-mainbannerslider-s1-0002.mp4" type="video/mp4" />
         </video>
         <div className="hero-bg-overlay"></div>
-        <div className="hero-content">
-          <div className="hero-tag" style={{ opacity: 1 }}>Member of Xrxes Holding · Lisbon, PT</div>
-          <h1 className="hero-h1">
-            <span className="line">Develop a World</span>
-            <span className="line">of <span className="grad">Solutions.</span></span>
-          </h1>
-          <p className="hero-sub">Twenty years crafting digital solutions for the real world. Custom software, dedicated teams, and enterprise-grade support from Lisbon to the globe.</p>
-          <div className="hero-actions">
-            <a href="#services" className="btn-primary">Explore Services</a>
-            <a href="#about" className="btn-ghost">Our Story</a>
+        <div className="hero-grid-overlay"></div>
+        <div className="hero-inner">
+          <div className="hero-content">
+            <div className="hero-tag" style={{ opacity: 1 }}>Member of Xrxes Holding · Lisbon, PT</div>
+            <h1 className="hero-h1">
+              <span className="line">Develop a World</span>
+              <span className="line">of <span className="grad">Solutions.</span></span>
+            </h1>
+            <p className="hero-sub">Twenty years crafting digital solutions for the real world. Custom software, dedicated teams, and enterprise-grade support from Lisbon to the globe.</p>
+            <div className="hero-actions">
+              <a href="#services" className="btn-primary">Explore Services</a>
+              <a href="#about" className="btn-ghost">Our Story</a>
+            </div>
           </div>
         </div>
         <div className="hero-scroll">
@@ -716,48 +1004,52 @@ function App() {
 
       {/* STATS BAR */}
       <div className="stats-bar" ref={statsRef}>
-        {stats.map((stat, i) => (
-          <div className="stat-item" key={stat.id}>
-            <div className="stat-number" id={stat.id}>
-              {statsInView ? <AnimatedStat target={stat.target} suffix={stat.suffix} delay={i * 200} /> : '0'}
+        <div className="stats-inner">
+          {stats.map((stat, i) => (
+            <div className="stat-item" key={stat.id}>
+              <div className="stat-number" id={stat.id}>
+                {statsInView ? <AnimatedStat target={stat.target} suffix={stat.suffix} delay={i * 200} /> : '0'}
+              </div>
+              <div className="stat-label">{stat.label}</div>
             </div>
-            <div className="stat-label">{stat.label}</div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* SERVICES */}
       <section id="services" aria-label="Services">
-        <div className="section-eyebrow reveal">What We Do</div>
-        <h2 className="section-title reveal">Tailor-made digital<br />innovative solutions.</h2>
-        <p className="section-sub reveal">We engineer software that drives real-world transformation \u2014 from greenfield builds to complex enterprise integrations.</p>
-        <div className="services-grid">
-          <div className="service-card reveal">
-            <div className="service-icon">
-              <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
+        <div className="section-inner">
+          <div className="section-eyebrow reveal">What We Do</div>
+          <h2 className="section-title reveal">Tailor-made digital<br />innovative solutions.</h2>
+          <p className="section-sub reveal">We engineer software that drives real-world transformation — from greenfield builds to complex enterprise integrations.</p>
+          <div className="services-grid">
+            <div className="service-card reveal">
+              <div className="service-icon">
+                <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
+              </div>
+              <div className="service-num">01 — </div>
+              <div className="service-name">Software Development</div>
+              <p className="service-desc">We craft innovative, customized software solutions — from microservices architecture to complex enterprise platforms — engineered for scale, performance, and maintainability.</p>
+              <a href="#contact" className="service-arrow">Get a project quote →</a>
             </div>
-            <div className="service-num">01 \u2014 </div>
-            <div className="service-name">Software Development</div>
-            <p className="service-desc">We craft innovative, customized software solutions \u2014 from microservices architecture to complex enterprise platforms \u2014 engineered for scale, performance, and maintainability.</p>
-            <a href="#contact" className="service-arrow">Get a project quote \u2192</a>
-          </div>
-          <div className="service-card reveal">
-            <div className="service-icon">
-              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+            <div className="service-card reveal">
+              <div className="service-icon">
+                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+              </div>
+              <div className="service-num">02 — </div>
+              <div className="service-name">Dedicated Teams</div>
+              <p className="service-desc">Our skilled teams integrate seamlessly into your workflows. Senior engineers, QA specialists, and project managers that operate as true extensions of your organization.</p>
+              <a href="#contact" className="service-arrow">Build your team →</a>
             </div>
-            <div className="service-num">02 \u2014 </div>
-            <div className="service-name">Dedicated Teams</div>
-            <p className="service-desc">Our skilled teams integrate seamlessly into your workflows. Senior engineers, QA specialists, and project managers that operate as true extensions of your organization.</p>
-            <a href="#contact" className="service-arrow">Build your team \u2192</a>
-          </div>
-          <div className="service-card reveal">
-            <div className="service-icon">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+            <div className="service-card reveal">
+              <div className="service-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+              </div>
+              <div className="service-num">03 — </div>
+              <div className="service-name">Support & Maintenance</div>
+              <p className="service-desc">Reliable, responsive support to keep your operations running smoothly. SLA-backed agreements, 24/7 monitoring, incident response, and continuous improvement cycles.</p>
+              <a href="#contact" className="service-arrow">View SLA options →</a>
             </div>
-            <div className="service-num">03 \u2014 </div>
-            <div className="service-name">Support & Maintenance</div>
-            <p className="service-desc">Reliable, responsive support to keep your operations running smoothly. SLA-backed agreements, 24/7 monitoring, incident response, and continuous improvement cycles.</p>
-            <a href="#contact" className="service-arrow">View SLA options \u2192</a>
           </div>
         </div>
       </section>
@@ -765,37 +1057,188 @@ function App() {
       {/* TECH STACK */}
       <section id="tech" aria-label="Tech Stack">
         <div className="tech-inner">
-          <div>
+          <div className="tech-info-column">
             <div className="section-eyebrow reveal">Tech Stack</div>
             <h2 className="section-title reveal">Built with the tools that matter.</h2>
-            <p className="section-sub reveal">Our engineers work across the full stack \u2014 cloud-native, microservices, and modern CI/CD pipelines.</p>
-            <div className="tech-tags">
-              {Object.keys(codeExamples).map((tag) => (
-                <span
-                  className={`tech-tag ${selectedTech === tag ? 'active' : ''}`}
-                  key={tag}
-                  onClick={() => setSelectedTech(tag)}
-                  onKeyDown={(e) => e.key === 'Enter' && setSelectedTech(tag)}
-                  role="button"
-                  tabIndex={0}
+            <p className="section-sub reveal">Our engineers work across the full stack — cloud-native, microservices, and modern CI/CD pipelines.</p>
+            
+            {/* Category tabs */}
+            <div className="tech-filters reveal">
+              {['All', 'Backend', 'Frontend', 'Database', 'DevOps & Cloud'].map((category) => (
+                <button
+                  key={category}
+                  className={`tech-filter-tab ${activeCategory === category ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveCategory(category)
+                    const filtered = Object.keys(codeExamples).filter(
+                      tag => category === 'All' || techCategories[tag] === category
+                    )
+                    if (filtered.length > 0 && !filtered.includes(selectedTech)) {
+                      setSelectedTech(filtered[0])
+                    }
+                  }}
                 >
-                  {tag}
-                </span>
+                  {category}
+                </button>
               ))}
             </div>
-          </div>
-          <div>
-            <div className="code-window reveal">
-              <div className="code-titlebar">
-                <div className="dot r"></div><div className="dot y"></div><div className="dot g"></div>
-                <span style={{ fontSize: '0.72rem', color: 'var(--muted)', marginLeft: '0.75rem', fontFamily: 'monospace' }}>{currentCode.filename}</span>
-              </div>
-              <div className="code-body">
-                {displayedCode.map((line, i) => (
-                  <div key={i} style={{ minHeight: '1.3em' }}>
-                    {highlightCode(line)}
-                  </div>
+
+            {/* Sub tech tags */}
+            <div className="tech-tags reveal">
+              {Object.keys(codeExamples)
+                .filter(tag => activeCategory === 'All' || techCategories[tag] === activeCategory)
+                .map((tag) => (
+                  <span
+                    className={`tech-tag ${selectedTech === tag ? 'active' : ''}`}
+                    key={tag}
+                    onClick={() => setSelectedTech(tag)}
+                    onKeyDown={(e) => e.key === 'Enter' && setSelectedTech(tag)}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    {tag}
+                  </span>
                 ))}
+            </div>
+          </div>
+
+          <div className="tech-editor-column">
+            <div className="ide-window reveal">
+              {/* Titlebar */}
+              <div className="ide-titlebar">
+                <div className="ide-dots">
+                  <div className="dot r"></div>
+                  <div className="dot y"></div>
+                  <div className="dot g"></div>
+                </div>
+                
+                {/* Horizontal tabs */}
+                <div className="ide-tabs">
+                  <div className="ide-tab active">
+                    <FileCode size={14} className={`ide-tab-icon ext-${currentCode.filename.split('.').pop()}`} />
+                    <span className="ide-tab-name">{currentCode.filename}</span>
+                  </div>
+                  {/* Supplemental document tab */}
+                  <div className="ide-tab inactive">
+                    <FileText size={14} className="ide-tab-icon ext-txt" />
+                    <span className="ide-tab-name">README.md</span>
+                  </div>
+                </div>
+
+                {/* Quick actions on the right */}
+                <div className="ide-actions">
+                  <button 
+                    className={`ide-action-btn copy-btn ${isCopied ? 'copied' : ''}`} 
+                    onClick={handleCopyCode}
+                    title="Copy Code"
+                  >
+                    {isCopied ? <Check size={14} className="success-icon" /> : <Copy size={14} />}
+                  </button>
+                  <button 
+                    className={`ide-action-btn run-btn ${isCompiling ? 'running' : ''}`}
+                    onClick={handleRunCode}
+                    title="Run Code"
+                  >
+                    <Play size={14} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Workspace */}
+              <div className="ide-workspace">
+                {/* Activity Bar */}
+                <div className="ide-activity-bar">
+                  <button className="ide-act-btn active" title="Explorer">
+                    <Code2 size={18} />
+                  </button>
+                  <button className="ide-act-btn" title="Search">
+                    <SearchIcon size={18} />
+                  </button>
+                  <button className="ide-act-btn" title="Source Control">
+                    <GitBranch size={18} />
+                  </button>
+                  <button className="ide-act-btn" title="DevOps Console" onClick={() => setIsConsoleOpen(!isConsoleOpen)}>
+                    <TerminalIcon size={18} />
+                  </button>
+                </div>
+
+                {/* Sidebar File Explorer */}
+                <div className="ide-sidebar">
+                  <div className="ide-sidebar-title">EXPLORER: NOEXA</div>
+                  <div className="ide-tree">
+                    {fileExplorer.map((folder) => {
+                      const isFolderVisible = activeCategory === 'All' || folder.name === activeCategory.toLowerCase().replace('devops & cloud', 'devops')
+                      return (
+                        <div className={`ide-tree-folder ${isFolderVisible ? 'expanded' : 'collapsed'}`} key={folder.name}>
+                          <div className="ide-tree-folder-title">
+                            <Folder size={13} className="folder-icon" />
+                            <span>{folder.name}</span>
+                          </div>
+                          <div className="ide-tree-folder-files">
+                            {folder.children.map((child) => {
+                              const isActiveFile = selectedTech === child.tech
+                              const isChildMatchingFilter = activeCategory === 'All' || techCategories[child.tech] === activeCategory
+                              if (!isChildMatchingFilter) return null
+                              return (
+                                <div 
+                                  key={child.name} 
+                                  className={`ide-tree-file ${isActiveFile ? 'active' : ''}`}
+                                  onClick={() => setSelectedTech(child.tech)}
+                                >
+                                  <FileCode size={12} className={`file-icon ext-${child.name.split('.').pop()}`} />
+                                  <span>{child.name}</span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Code Editor */}
+                <div className="ide-editor">
+                  <div className="ide-lines">
+                    {displayedCode.map((_, idx) => (
+                      <span key={idx} className="ide-line-num">{idx + 1}</span>
+                    ))}
+                  </div>
+                  <div className="ide-code-body">
+                    {displayedCode.map((line, i) => (
+                      <div key={i} className="ide-code-line">
+                        {highlightCode(line)}
+                      </div>
+                    ))}
+                    {displayedCode.length === 0 && <div className="ide-cursor-blink">|</div>}
+                  </div>
+                </div>
+
+                {/* Console terminal output */}
+                <div className={`ide-terminal ${isConsoleOpen ? 'open' : ''}`}>
+                  <div className="ide-terminal-header">
+                    <div className="ide-terminal-title">
+                      <TerminalIcon size={12} style={{ marginRight: '6px' }} />
+                      <span>TERMINAL — bash</span>
+                    </div>
+                    <button className="ide-terminal-close" onClick={() => setIsConsoleOpen(false)}>
+                      <X size={12} />
+                    </button>
+                  </div>
+                  <div className="ide-terminal-body">
+                    {consoleLogs.map((log, i) => (
+                      <div key={i} className={`ide-terminal-log ${log.startsWith('$') ? 'command' : log.includes('SUCCESS') || log.includes('successful') || log.includes('successful!') || log.includes('complete') ? 'success' : 'info'}`}>
+                        {log}
+                      </div>
+                    ))}
+                    {isCompiling && (
+                      <div className="ide-terminal-prompt">
+                        <span className="prompt-symbol">$</span>
+                        <span className="terminal-cursor">█</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -803,112 +1246,45 @@ function App() {
       </section>
 
       {/* ABOUT */}
-      <section id="about" aria-label="About NoeXa">
-        <div className="about-inner">
-          <div>
-            <div className="section-eyebrow reveal">About NoeXa</div>
-            <h2 className="section-title reveal">More than twenty years of experience.</h2>
-            <p className="section-sub reveal">NoeXa is a member of the Xrxes Holding, operating from Lisbon with a global footprint. We partner with public and private sector clients to deliver mission-critical digital solutions that stand the test of time.</p>
-            <p className="section-sub reveal" style={{ marginTop: '1rem' }}>Our multicultural team of 80 professionals spans 14 nationalities, bringing a diversity of perspective that drives better engineering outcomes.</p>
-            <div className="about-stats reveal">
-              <div className="about-stat">
-                <div className="about-stat-n">3</div>
-                <div className="about-stat-l">Offices</div>
-              </div>
-              <div className="about-stat">
-                <div className="about-stat-n">80</div>
-                <div className="about-stat-l">Team Members</div>
-              </div>
-              <div className="about-stat">
-                <div className="about-stat-n">14</div>
-                <div className="about-stat-l">Nationalities</div>
-              </div>
-            </div>
-          </div>
-          <div className="about-visual">
-            <div className="about-map-block reveal">
-              <div style={{ fontSize: '0.72rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '1rem' }}>Active Offices</div>
-              <div className="office-item">
-                <div className="office-dot"></div>
-                <div>
-                  <div className="office-name">Lisbon, Portugal</div>
-                  <div className="office-role">Headquarters · Engineering Hub</div>
-                </div>
-                <div style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'var(--muted)', fontFamily: 'monospace' }}>38.7°N 9.1°W</div>
-              </div>
-              <div className="office-item">
-                <div className="office-dot" style={{ background: 'var(--accent2)', boxShadow: '0 0 12px var(--accent2)' }}></div>
-                <div>
-                  <div className="office-name">Europe \u2013 Nordic</div>
-                  <div className="office-role">Partner Teams · Public Sector</div>
-                </div>
-                <div style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'var(--muted)', fontFamily: 'monospace' }}>Xrxes Network</div>
-              </div>
-              <div className="office-item">
-                <div className="office-dot" style={{ background: '#27c93f', boxShadow: '0 0 12px #27c93f' }}></div>
-                <div>
-                  <div className="office-name">Remote \u00B7 Global</div>
-                  <div className="office-role">Distributed Teams · 14 Countries</div>
-                </div>
-                <div style={{ marginLeft: 'auto', fontSize: '0.7rem', color: 'var(--muted)', fontFamily: 'monospace' }}>Worldwide</div>
-              </div>
-            </div>
-            <div style={{ marginTop: '2rem', height: '250px' }}>
-              <div style={{ 
-                width: '100%', 
-                height: '100%', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%)',
-                borderRadius: '6px',
-                border: '1px solid rgba(0,0,0,0.08)'
-              }}>
-                <div style={{ textAlign: 'center', color: '#666' }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🌍</div>
-                  <div style={{ fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Lisbon · Europe · Global</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <AboutFeatures />
 
       {/* TEAM QUOTES */}
       <section id="team" aria-label="Team testimonials">
-        <div className="section-eyebrow reveal">Our People</div>
-        <h2 className="section-title reveal">Built by those who believe in it.</h2>
-        <div className="quotes-grid">
-          <div className="quote-card reveal">
-            <div className="quote-mark">"</div>
-            <p className="quote-text">Being part of Noexa's foundation from the ground up has been a great challenge \u2014 but entirely possible with the right energy and dedication. It is an outstanding privilege to contribute actively to a brighter future.</p>
-            <div className="quote-author">
-              <div className="quote-avatar">JM</div>
-              <div>
-                <div className="quote-name">João Moreira</div>
-                <div className="quote-role">Head of ITWS</div>
+        <div className="section-inner">
+          <div className="section-eyebrow reveal">Our People</div>
+          <h2 className="section-title reveal">Built by those who believe in it.</h2>
+          <div className="quotes-grid">
+            <div className="quote-card reveal">
+              <div className="quote-mark">"</div>
+              <p className="quote-text">Being part of Noexa's foundation from the ground up has been a great challenge — but entirely possible with the right energy and dedication. It is an outstanding privilege to contribute actively to a brighter future.</p>
+              <div className="quote-author">
+                <div className="quote-avatar">JM</div>
+                <div>
+                  <div className="quote-name">João Moreira</div>
+                  <div className="quote-role">Head of ITWS</div>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="quote-card reveal">
-            <div className="quote-mark">"</div>
-            <p className="quote-text">Beyond the broad portfolio that Xrxes provides, the opportunity to engage in governmental projects \u2014 where your dedication directly influences the lives of many \u2014 represents an ideal mission-driven role.</p>
-            <div className="quote-author">
-              <div className="quote-avatar" style={{ background: 'linear-gradient(135deg,#7c4dff,#b39ddb)' }}>AR</div>
-              <div>
-                <div className="quote-name">Admir Rashidi</div>
-                <div className="quote-role">Project Manager</div>
+            <div className="quote-card reveal">
+              <div className="quote-mark">"</div>
+              <p className="quote-text">Beyond the broad portfolio that Xrxes provides, the opportunity to engage in governmental projects — where your dedication directly influences the lives of many — represents an ideal mission-driven role.</p>
+              <div className="quote-author">
+                <div className="quote-avatar" style={{ background: 'linear-gradient(135deg,#7c4dff,#b39ddb)' }}>AR</div>
+                <div>
+                  <div className="quote-name">Admir Rashidi</div>
+                  <div className="quote-role">Project Manager</div>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="quote-card reveal">
-            <div className="quote-mark">"</div>
-            <p className="quote-text">I started as a project assistant. Now I am a Senior Project Manager. Xrxes is definitely the best company to grow \u2014 a great team and fascinating projects in the public sector.</p>
-            <div className="quote-author">
-              <div className="quote-avatar" style={{ background: 'linear-gradient(135deg,#27c93f,#00e5ff)' }}>JS</div>
-              <div>
-                <div className="quote-name">Jasmin Schöller</div>
-                <div className="quote-role">Senior Project Manager</div>
+            <div className="quote-card reveal">
+              <div className="quote-mark">"</div>
+              <p className="quote-text">I started as a project assistant. Now I am a Senior Project Manager. Xrxes is definitely the best company to grow — a great team and fascinating projects in the public sector.</p>
+              <div className="quote-author">
+                <div className="quote-avatar" style={{ background: 'linear-gradient(135deg,#27c93f,#00e5ff)' }}>JS</div>
+                <div>
+                  <div className="quote-name">Jasmin Schöller</div>
+                  <div className="quote-role">Senior Project Manager</div>
+                </div>
               </div>
             </div>
           </div>
@@ -917,66 +1293,68 @@ function App() {
 
       {/* CAREERS */}
       <section id="careers" aria-label="Open positions">
-        <div className="section-eyebrow reveal">Open Positions</div>
-        <h2 className="section-title reveal">There's a place for you.</h2>
-        <p className="section-sub reveal">Join a team building real solutions for real-world impact. Lisbon-based, globally minded \u2014 hybrid model, 2\u20133 days in office.</p>
-        <div className="jobs-list reveal">
-          {[
-            { title: 'Senior Full-Stack Developer (.NET + React)', tags: ['Lisbon', 'Full-Time'], tech: '.NET 6+ · C# · React · Angular' },
-            { title: 'Senior Full-Stack Developer (JS / TypeScript)', tags: ['Lisbon', 'Full-Time'], tech: 'Node.js · React · MongoDB · Azure' },
-            { title: 'Senior QA Engineer', tags: ['Lisbon', 'Full-Time'], tech: 'Cypress · Playwright · Selenium' },
-            { title: 'Mid-Senior Front-End Developer', tags: ['Lisbon', 'Full-Time'], tech: 'TypeScript · React · Stencil · Web Components' },
-          ].map((job, i) => (
-            <div key={i}>
-              <div
-                className="job-item"
-                onClick={() => setExpandedJob(expandedJob === i ? null : i)}
-                onKeyDown={(e) => e.key === 'Enter' && setExpandedJob(expandedJob === i ? null : i)}
-                role="button"
-                tabIndex={0}
-                aria-expanded={expandedJob === i}
-              >
-                <div className="job-left">
-                  <div className="job-title">{job.title}</div>
-                  <div className="job-meta">
-                    {job.tags.map((tag, j) => (
-                      <span className={`job-tag ${tag === 'Lisbon' ? 'tag-lisbon' : 'tag-ft'}`} key={j}>{tag}</span>
-                    ))}
-                    <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>{job.tech}</span>
+        <div className="section-inner">
+          <div className="section-eyebrow reveal">Open Positions</div>
+          <h2 className="section-title reveal">There's a place for you.</h2>
+          <p className="section-sub reveal">Join a team building real solutions for real-world impact. Lisbon-based, globally minded — hybrid model, 2–3 days in office.</p>
+          <div className="jobs-list reveal">
+            {[
+              { title: 'Senior Full-Stack Developer (.NET + React)', tags: ['Lisbon', 'Full-Time'], tech: '.NET 6+ · C# · React · Angular' },
+              { title: 'Senior Full-Stack Developer (JS / TypeScript)', tags: ['Lisbon', 'Full-Time'], tech: 'Node.js · React · MongoDB · Azure' },
+              { title: 'Senior QA Engineer', tags: ['Lisbon', 'Full-Time'], tech: 'Cypress · Playwright · Selenium' },
+              { title: 'Mid-Senior Front-End Developer', tags: ['Lisbon', 'Full-Time'], tech: 'TypeScript · React · Stencil · Web Components' },
+            ].map((job, i) => (
+              <div key={i}>
+                <div
+                  className="job-item"
+                  onClick={() => setExpandedJob(expandedJob === i ? null : i)}
+                  onKeyDown={(e) => e.key === 'Enter' && setExpandedJob(expandedJob === i ? null : i)}
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={expandedJob === i}
+                >
+                  <div className="job-left">
+                    <div className="job-title">{job.title}</div>
+                    <div className="job-meta">
+                      {job.tags.map((tag, j) => (
+                        <span className={`job-tag ${tag === 'Lisbon' ? 'tag-lisbon' : 'tag-ft'}`} key={j}>{tag}</span>
+                      ))}
+                      <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>{job.tech}</span>
+                    </div>
                   </div>
+                  <div className="job-arrow" style={{ transform: expandedJob === i ? 'rotate(90deg)' : 'rotate(0)' }}>→</div>
                 </div>
-                <div className="job-arrow" style={{ transform: expandedJob === i ? 'rotate(90deg)' : 'rotate(0)' }}>\u2192</div>
+                <div className={`job-details ${expandedJob === i ? 'expanded' : ''}`}>
+                  {jobDetails[i] && (
+                    <>
+                      <p className="job-description">{jobDetails[i].description}</p>
+                      <div className="job-section">
+                        <h4>Responsibilities</h4>
+                        <ul>
+                          {jobDetails[i].responsibilities.map((resp, j) => (
+                            <li key={j}>{resp}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="job-section">
+                        <h4>Skills & Requirements</h4>
+                        <ul>
+                          {jobDetails[i].skills.map((skill, j) => (
+                            <li key={j}>{skill}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <p className="job-cta">Are you ready to change the future?</p>
+                      <p className="job-contact">If you are looking for a challenging opportunity in a growing international company, please send your updated CV and cover letter to <a href="mailto:recruitment@noexa.pt">recruitment@noexa.pt</a>. We look forward to hearing from you!</p>
+                    </>
+                  )}
+                </div>
               </div>
-              <div className={`job-details ${expandedJob === i ? 'expanded' : ''}`}>
-                {jobDetails[i] && (
-                  <>
-                    <p className="job-description">{jobDetails[i].description}</p>
-                    <div className="job-section">
-                      <h4>Responsibilities</h4>
-                      <ul>
-                        {jobDetails[i].responsibilities.map((resp, j) => (
-                          <li key={j}>{resp}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="job-section">
-                      <h4>Skills & Requirements</h4>
-                      <ul>
-                        {jobDetails[i].skills.map((skill, j) => (
-                          <li key={j}>{skill}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <p className="job-cta">Are you ready to change the future?</p>
-                    <p className="job-contact">If you are looking for a challenging opportunity in a growing international company, please send your updated CV and cover letter to <a href="mailto:recruitment@noexa.pt">recruitment@noexa.pt</a>. We look forward to hearing from you!</p>
-                  </>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-          <a href="mailto:recruitment@noexa.pt" className="btn-primary" style={{ display: 'inline-block' }}>Send CV to recruitment@noexa.pt</a>
+            ))}
+          </div>
+          <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+            <a href="mailto:recruitment@noexa.pt" className="btn-primary" style={{ display: 'inline-block' }}>Send CV to recruitment@noexa.pt</a>
+          </div>
         </div>
       </section>
 
@@ -986,7 +1364,7 @@ function App() {
           <div>
             <div className="section-eyebrow reveal">Get in Contact</div>
             <h2 className="section-title reveal">Let's build something together.</h2>
-            <p className="section-sub reveal">Choose the channel that fits you best. We're available working days, 09:00\u201318:00 WET.</p>
+            <p className="section-sub reveal">Choose the channel that fits you best. We're available working days, 09:00–18:00 WET.</p>
             <div className="contact-methods">
               <div className="contact-method reveal">
                 <div className="contact-icon">
@@ -1026,7 +1404,7 @@ function App() {
                   <input
                     id="firstName"
                     type="text"
-                    placeholder="Jo\u00E3o"
+                    placeholder="João"
                     value={formData.firstName}
                     onChange={e => handleFormChange('firstName', e.target.value)}
                     aria-invalid={!!formErrors.firstName}
@@ -1087,12 +1465,12 @@ function App() {
               </div>
               {formStatus === 'sent' && (
                 <div style={{ padding: '0.75rem', background: '#f0fff4', border: '1px solid #9ae6b4', borderRadius: '4px', color: '#276749', fontSize: '0.875rem' }}>
-                  \u2713 Message sent successfully! We'll get back to you soon.
+                  ✓ Message sent successfully! We'll get back to you soon.
                 </div>
               )}
               {formStatus === 'error' && (
                 <div style={{ padding: '0.75rem', background: '#fff5f5', border: '1px solid #feb2b2', borderRadius: '4px', color: '#9b2c2c', fontSize: '0.875rem' }}>
-                  \u2717 Something went wrong. Please try again or email us directly.
+                  ✗ Something went wrong. Please try again or email us directly.
                 </div>
               )}
               <button
@@ -1100,7 +1478,7 @@ function App() {
                 type="submit"
                 disabled={formStatus === 'sending'}
               >
-                {formStatus === 'sending' ? 'Sending...' : 'Send Message \u2192'}
+                {formStatus === 'sending' ? 'Sending...' : 'Send Message →'}
               </button>
             </form>
           </div>
@@ -1109,15 +1487,17 @@ function App() {
 
       {/* FOOTER */}
       <footer>
-        <div className="footer-logo">
-          <img src="https://noexa.pt/wp-content/uploads/2024/12/logo-noexa-it-solutions-1.png" alt="NoeXa" />
-        </div>
-        <div className="footer-copy">\u00A9 2026 NoeXa IT Solutions \u00B7 Member of Xrxes Holding</div>
-        <div className="footer-links">
-          <a href="#services">Services</a>
-          <a href="#careers">Careers</a>
-          <a href="#contact">Contact</a>
-          <a href="https://www.linkedin.com/company/noexa-it-solutions/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <div className="footer-inner">
+          <div className="footer-logo">
+            <img src="https://noexa.pt/wp-content/uploads/2024/12/logo-noexa-it-solutions-1.png" alt="NoeXa" />
+          </div>
+          <div className="footer-copy">© 2026 NoeXa IT Solutions · Member of Xrxes Holding</div>
+          <div className="footer-links">
+            <a href="#services">Services</a>
+            <a href="#careers">Careers</a>
+            <a href="#contact">Contact</a>
+            <a href="https://www.linkedin.com/company/noexa-it-solutions/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          </div>
         </div>
       </footer>
     </>
@@ -1127,41 +1507,71 @@ function App() {
 /* ============== CODE HIGHLIGHTER ============== */
 function highlightCode(line: string) {
   if (!line) return <span>&nbsp;</span>
-  const indent = line.match(/^(\s*)/)?.[1] || ''
-  const trimmed = line.trim()
-  if (!trimmed) return <span>&nbsp;</span>
+  const indentMatch = line.match(/^(\s*)/)
+  const indent = indentMatch ? indentMatch[1] : ''
+  const content = line.slice(indent.length)
+  if (!content.trim()) return <span>&nbsp;</span>
 
-  // Comments
-  if (trimmed.startsWith('//') || trimmed.startsWith('#') || trimmed.startsWith('--')) {
-    return <><span style={{ paddingLeft: `${indent.length}ch` }}><span className="c-cm">{line}</span></span></>
+  // Complete comments
+  if (content.startsWith('//') || content.startsWith('#') || content.startsWith('--') || content.startsWith('/*') || content.startsWith('*') || content.startsWith('*/')) {
+    return (
+      <span style={{ paddingLeft: `${indent.length}ch` }}>
+        <span className="c-cm">{content}</span>
+      </span>
+    )
   }
 
-  // Strings - lines that are primarily string content
-  if ((trimmed.startsWith('"') || trimmed.startsWith("'") || trimmed.startsWith('`')) && !trimmed.includes('import') && !trimmed.includes('const') && !trimmed.includes('let') && !trimmed.includes('var') && !trimmed.includes('public') && !trimmed.includes('private') && !trimmed.includes('namespace') && !trimmed.includes('export') && !trimmed.includes('interface') && !trimmed.includes('type') && !trimmed.includes('class')) {
-    return <span style={{ paddingLeft: `${indent.length}ch` }} className="c-str">{line}</span>
+  // Token regex for multiline matching keywords, types, strings, numbers, punctuation
+  const tokenRegex = /(\/\/.*|#.*|--.*|"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|`(?:\\`|[^`])*`|\b(?:public|private|protected|namespace|class|interface|type|const|let|var|export|import|from|return|async|await|new|def|func|use|package|struct|enum|impl|trait|self|Self|virtual|override|readonly|get|set|fn|void|string|int|double|float|bool|boolean|char|null|true|false)\b|\b\d+\b|\b[A-Z]\w*\b|\b\w+(?=\()|[{}()\[\].,:;+\-*\/&|=!<>?%^~])/g
+
+  let lastIndex = 0
+  const spans: React.ReactNode[] = []
+  let match: RegExpExecArray | null
+
+  while ((match = tokenRegex.exec(content)) !== null) {
+    const textBefore = content.substring(lastIndex, match.index)
+    if (textBefore) {
+      spans.push(<span key={`text-${lastIndex}`}>{textBefore}</span>)
+    }
+
+    const token = match[0]
+    let className = ''
+
+    if (token.startsWith('//') || token.startsWith('#') || token.startsWith('--')) {
+      className = 'c-cm'
+    } else if (token.startsWith('"') || token.startsWith("'") || token.startsWith('`')) {
+      className = 'c-str'
+    } else if (/^\d+$/.test(token)) {
+      className = 'c-num'
+    } else if (/^(public|private|protected|namespace|class|interface|type|const|let|var|export|import|from|return|async|await|new|def|func|use|package|struct|enum|impl|trait|self|Self|fn)$/.test(token)) {
+      className = 'c-kw'
+    } else if (/^(void|string|int|double|float|bool|boolean|char|null|true|false)$/.test(token)) {
+      className = 'c-type'
+    } else if (/^[A-Z]\w*$/.test(token)) {
+      className = 'c-class'
+    } else if (content[match.index + token.length] === '(') {
+      className = 'c-fn'
+    }
+
+    spans.push(
+      <span key={`token-${match.index}`} className={className}>
+        {token}
+      </span>
+    )
+
+    lastIndex = tokenRegex.lastIndex
   }
 
-  // Keywords
-  const keywordPatterns = [
-    /^[\s]*(public|private|protected|namespace|class|interface|type|const|let|var|export|import|from|return|async|await|new|async|def|func|use|package|import)/,
-    /^[\s]*(resource|property|apiVersion|kind|metadata|spec|FROM|COPY|RUN|WORKDIR|EXPOSE|SELECT|FROM|WHERE|GROUP BY|HAVING|ORDER BY|LIMIT|AS|JOIN)/i,
-    /^[\s]*(@Injectable|@RestController|@RequestMapping|@Autowired|@GetMapping|@PostMapping|@RequestBody|@app\.get|@app\.post|@Injectable)/,
-    /^[\s]*(async\s+fn|func\s+\()/,
-    /^[\s]*(match|case|struct|enum|impl|trait|self|Self)\b/,
-  ]
-
-  const isKeyword = keywordPatterns.some(pattern => pattern.test(trimmed))
-  if (isKeyword) {
-    return <span style={{ paddingLeft: `${indent.length}ch` }} className="c-kw">{line}</span>
+  const textAfter = content.substring(lastIndex)
+  if (textAfter) {
+    spans.push(<span key="text-end">{textAfter}</span>)
   }
 
-  // Numbers only lines
-  if (/^\s*\d+(\s*)$/.test(trimmed) && trimmed.length < 10) {
-    return <span style={{ paddingLeft: `${indent.length}ch` }} className="c-num">{line}</span>
-  }
-
-  // Default
-  return <span style={{ paddingLeft: `${indent.length}ch` }}>{line}</span>
+  return (
+    <span style={{ paddingLeft: `${indent.length}ch` }}>
+      {spans.length > 0 ? spans : content}
+    </span>
+  )
 }
 
 /* ============== ANIMATED STAT COMPONENT ============== */
